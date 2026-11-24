@@ -27,3 +27,4 @@ fixtures/*/.wrangler/
 .opencode/plans
 
 fixtures/*/.cloudflare/
+/.irnbru-release/
