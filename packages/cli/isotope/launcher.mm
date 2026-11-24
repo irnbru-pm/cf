@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
         NSString *node = [contents stringByAppendingPathComponent:@"Helpers/node"];
         NSString *entry = [contents stringByAppendingPathComponent:@"Resources/cf.cjs"];
         NSString *readScope = [@"--allow-fs-read=" stringByAppendingString:entry];
-        std::vector<const char *> args = {node.fileSystemRepresentation, "--permission", readScope.UTF8String, "--no-addons", "--no-global-search-paths", "--disable-sigusr1", "--jitless", "--disable-proto=throw", "--", entry.fileSystemRepresentation};
+        std::vector<const char *> args = {node.fileSystemRepresentation, "--permission", readScope.UTF8String, "--no-addons", "--no-global-search-paths", "--disable-sigusr1", "--disable-proto=throw", "--", entry.fileSystemRepresentation};
         for (int i=1; i<argc; ++i) args.push_back(argv[i]);
         args.push_back(nullptr);
         const char *env[] = {"PATH=/usr/bin:/bin", "LANG=en_US.UTF-8", "HOME=/var/empty", nullptr};
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
         posix_spawn_file_actions_t actions; posix_spawnattr_t attr;
         if (posix_spawn_file_actions_init(&actions) || posix_spawnattr_init(&attr) ||
             posix_spawnattr_setflags(&attr, POSIX_SPAWN_CLOEXEC_DEFAULT) ||
-            posix_spawn_file_actions_addchdir_np(&actions, "/") ||
+            posix_spawn_file_actions_addchdir(&actions, "/") ||
             posix_spawn_file_actions_adddup2(&actions, pair[1], 3)) return 1;
         for (int fd=0; fd<3; fd++) if (fcntl(fd,F_GETFD) >= 0 && posix_spawn_file_actions_addinherit_np(&actions,fd)) return 1;
         pid_t child;

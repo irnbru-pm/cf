@@ -4,22 +4,6 @@ import { Client } from "../src/api/index.js";
 import { context, storageFactory } from "./storage.js";
 
 const transport = globalThis.fetch;
-const oauthPaths = new Set([
-	"/oauth2/device/auth",
-	"/oauth2/token",
-	"/oauth2/revoke",
-]);
-// workers-auth uses global fetch for device authorization, refresh and revocation.
-globalThis.fetch = (input, init) => {
-	const url = new URL(input instanceof Request ? input.url : String(input));
-	if (
-		url.origin !== "https://dash.cloudflare.com" ||
-		!oauthPaths.has(url.pathname)
-	) {
-		throw new Error("Invalid Cloudflare OAuth destination");
-	}
-	return transport(input, { ...init, redirect: "error" });
-};
 export const flow = createOAuthFlow({
 	logger: {
 		log: console.error,
@@ -43,6 +27,7 @@ export const flow = createOAuthFlow({
 	temporary: undefined,
 });
 export async function login() {
+	storageFactory(context.profile).read();
 	const signedIn = await flow.login({
 		device: true,
 		browser: false,

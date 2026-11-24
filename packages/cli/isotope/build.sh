@@ -20,7 +20,7 @@ with open(sys.argv[1]+"/Contents/Info.plist","wb") as f:
     plistlib.dump(dict(CFBundleIdentifier="dev.mxcl.irnbru.cf",CFBundleName="Cf",CFBundleExecutable="cf",CFBundlePackageType="APPL",CFBundleVersion="1",CFBundleShortVersionString="1.0.0",LSMinimumSystemVersion="27.0"),f)
 PY
 identity='Developer ID Application: Max Howell (ZU76A67LGU)'
-codesign -f -s "$identity" --timestamp --options runtime -i dev.mxcl.irnbru.cf.node "$app/Contents/Helpers/node"
+codesign -f -s "$identity" --timestamp --options runtime --entitlements packages/cli/isotope/node.entitlements -i dev.mxcl.irnbru.cf.node "$app/Contents/Helpers/node"
 codesign -f -s "$identity" --timestamp --options runtime "$app"
 codesign --verify --strict --deep "$app"
 COPYFILE_DISABLE=1 tar -czf "$out/cf-darwin-arm64.tar.gz" -C "$out" Cf.app

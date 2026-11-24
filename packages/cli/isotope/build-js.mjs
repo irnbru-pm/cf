@@ -54,6 +54,10 @@ await build({
 		{
 			name: "isotope",
 			setup(b) {
+				b.onResolve({ filter: /^undici$/ }, (args) => {
+					if (args.importer.includes("/@cloudflare/workers-auth/"))
+						return { path: path.join(here, "oauth-transport.ts") };
+				});
 				b.onResolve({ filter: /^irnbru:commands$/ }, (args) => ({
 					path: args.path,
 					namespace: "registry",
