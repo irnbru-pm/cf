@@ -5,7 +5,7 @@ import { context } from "./storage.js";
 
 async function main(args: string[]) {
 	if (args.length === 1 && args[0] === "--version") {
-		console.log("1.0.0-rc.4-irnbru.1");
+		console.log("1.0.0-rc.5-irnbru.1");
 		return;
 	}
 	const names = Object.keys(commands);
@@ -15,17 +15,23 @@ async function main(args: string[]) {
 		!args[0].startsWith("-") &&
 		!Object.hasOwn(commands, path.join(" ")) &&
 		path[0] !== "auth"
-	)
-		path.push(args.shift()!);
-	if (path[0] === "auth" && args.length) path.push(args.shift()!);
+	) {
+		path.push(args[0]);
+		args.shift();
+	}
+	if (path[0] === "auth" && args.length) {
+		path.push(args[0]);
+		args.shift();
+	}
 	const name = path.join(" ");
 	if (
 		(!name || !Object.hasOwn(commands, name)) &&
 		!["auth login", "auth logout", "auth create", "auth delete"].includes(name)
 	) {
 		const matches = names.filter((key) => !name || key.startsWith(name + " "));
-		if (!matches.length || args.some((arg) => arg !== "--help"))
+		if (!matches.length || args.some((arg) => arg !== "--help")) {
 			throw new Error("Unsupported managed cf command: " + name);
+		}
 		console.log(
 			[
 				"cf auth login|logout [--profile NAME]",
@@ -51,13 +57,12 @@ async function main(args: string[]) {
 		.option("zone", { type: "string", alias: "z" })
 		.option("quiet", { type: "boolean" })
 		.help();
-	function select(argv: Record<string, any>) {
-		context.profile = argv.profileName ?? argv.profile;
-		if (
-			typeof context.profile !== "string" ||
-			!/^[a-zA-Z0-9_-]{1,64}$/.test(context.profile)
-		)
+	function select(argv: Record<string, unknown>) {
+		const profile = argv.profileName ?? argv.profile;
+		if (typeof profile !== "string" || !/^[a-zA-Z0-9_-]{1,64}$/.test(profile)) {
 			throw new Error("Invalid profile");
+		}
+		context.profile = profile;
 		for (const [field, value] of [
 			["account", argv.accountId],
 			["zone", argv.zoneId ?? argv.zone],
@@ -65,8 +70,9 @@ async function main(args: string[]) {
 			if (
 				value !== undefined &&
 				(typeof value !== "string" || !/^[a-f0-9]{32}$/i.test(value))
-			)
+			) {
 				throw new Error("Invalid " + field + " ID");
+			}
 			context[field] = value ?? "";
 		}
 		flow.setProfile(context.profile);
@@ -79,8 +85,11 @@ async function main(args: string[]) {
 			(y) => y,
 			async (argv) => {
 				select(argv);
-				if (name === "auth login" || name === "auth create") await login();
-				else await flow.logout(context.profile);
+				if (name === "auth login" || name === "auth create") {
+					await login();
+				} else {
+					await flow.logout(context.profile);
+				}
 			}
 		);
 	} else {

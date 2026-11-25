@@ -34,23 +34,29 @@ export async function login() {
 		scopes: CF_CLI.getDefaultScopeKeys(),
 		profile: context.profile,
 	});
-	if (!signedIn) throw new Error("Cloudflare login did not complete");
+	if (!signedIn) {
+		throw new Error("Cloudflare login did not complete");
+	}
 }
 export const resolveAccountIdSilent = async () => context.account || undefined;
 export async function getAccountId() {
-	if (!context.account)
+	if (!context.account) {
 		throw new Error("Supply --account-id with the Cloudflare account ID");
+	}
 	return context.account;
 }
 export async function getZoneId(argv: { zone?: string; zoneId?: string }) {
 	const zone = argv.zoneId ?? argv.zone ?? context.zone;
-	if (!/^[a-f0-9]{32}$/i.test(zone))
+	if (!/^[a-f0-9]{32}$/i.test(zone)) {
 		throw new Error("Supply --zone with the Cloudflare zone ID");
+	}
 	context.zone = zone;
 	return zone;
 }
 export function getWorkerName(argv: { scriptName?: string }) {
-	if (!argv.scriptName) throw new Error("Supply --worker explicitly");
+	if (!argv.scriptName) {
+		throw new Error("Supply --worker explicitly");
+	}
 	return argv.scriptName;
 }
 export async function createCommandClient() {
@@ -59,7 +65,9 @@ export async function createCommandClient() {
 		maxRetries: 0,
 		auth: async () => {
 			const token = await flow.getOAuthTokenFromLocalState();
-			if (!token) throw new Error("Sign in using cf auth login");
+			if (!token) {
+				throw new Error("Sign in using cf auth login");
+			}
 			return { headers: { Authorization: "Bearer " + token } };
 		},
 		fetch: (input, init) => {
@@ -67,8 +75,9 @@ export async function createCommandClient() {
 			if (
 				url.origin !== "https://api.cloudflare.com" ||
 				!url.pathname.startsWith("/client/v4/")
-			)
+			) {
 				throw new Error("Invalid Cloudflare API destination");
+			}
 			return transport(input, { ...init, redirect: "error" });
 		},
 	});

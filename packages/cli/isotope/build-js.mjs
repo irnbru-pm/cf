@@ -12,8 +12,9 @@ for (const cmd of commands) {
 	if (
 		!cmd.operationId ||
 		!cmd.fullPath.every((word) => /^[a-z0-9-]+$/.test(word))
-	)
+	) {
 		continue;
+	}
 	const file = path.join(generated, ...cmd.fullPath) + ".ts";
 	let src;
 	try {
@@ -27,8 +28,9 @@ for (const cmd of commands) {
 		!src.includes("import operation from") ||
 		!src.includes("client.send(") ||
 		/requestApi|fetchRawBytes|#commands\/|import\(/.test(src)
-	)
+	) {
 		continue;
+	}
 	entries.push(
 		JSON.stringify(cmd.fullPath.join(" ")) +
 			":require(" +
@@ -36,8 +38,9 @@ for (const cmd of commands) {
 			").default"
 	);
 }
-if (entries.length < 2000)
+if (entries.length < 2000) {
 	throw new Error("Unexpected upstream command inventory");
+}
 console.log("Bundling", entries.length, "upstream API handlers");
 await build({
 	entryPoints: [path.join(here, "main.ts")],
@@ -55,8 +58,9 @@ await build({
 			name: "isotope",
 			setup(b) {
 				b.onResolve({ filter: /^undici$/ }, (args) => {
-					if (args.importer.includes("/@cloudflare/workers-auth/"))
+					if (args.importer.includes("/@cloudflare/workers-auth/")) {
 						return { path: path.join(here, "oauth-transport.ts") };
+					}
 				});
 				b.onResolve({ filter: /^irnbru:commands$/ }, (args) => ({
 					path: args.path,

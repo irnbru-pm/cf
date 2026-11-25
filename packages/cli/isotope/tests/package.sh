@@ -12,7 +12,7 @@ cd "$tmp/project"
 echo 'throw Error("project code ran")' | tee node_modules/cf/bin/cf cloudflare.config.ts preload.cjs >/dev/null
 echo 'CLOUDFLARE_API_TOKEN=fixture' > .env
 export NODE_OPTIONS="--require=$PWD/preload.cjs" CLOUDFLARE_API_TOKEN=fixture
-[[ $("$cf" --version) == 1.0.0-rc.4-irnbru.1 ]]
+[[ $("$cf" --version) == 1.0.0-rc.5-irnbru.1 ]]
 "$cf" zones list --dry-run | grep -q 'api.cloudflare.com/client/v4/zones'
 "$cf" zones delete --zone 0123456789abcdef0123456789abcdef --dry-run | grep -q DELETE
 if "$cf" zones list >message 2>&1; then exit 1; fi

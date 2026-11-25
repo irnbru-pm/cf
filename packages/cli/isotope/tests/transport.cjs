@@ -31,7 +31,8 @@ globalThis.fetch = async (input, init) => {
 				token_type: "bearer",
 			});
 		case "/oauth2/revoke":
-			assert.match(String(init.body), /fixture-refresh/);
+			assert(typeof init.body === "string");
+			assert.match(init.body, /fixture-refresh/);
 			return new Response("");
 		default:
 			throw new Error("Unexpected fixture destination");
